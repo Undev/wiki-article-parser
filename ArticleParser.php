@@ -19,7 +19,7 @@ $wgHooks['ArticleSave'][] = 'brRemove';
 
 function brRemove(&$article, &$user, &$text, &$summary, $minor, $watchthis, $sectionanchor, &$flags, &$status)
 {
-    $msg = '(пожалуйста, не пользуйтесь тегом BR — double enter создаст новый абзац; для оформления списков есть разметка; не лишним будет взглянуть на [[Wiki FAQ]])';
+    $msg = '<br>(пожалуйста, не пользуйтесь тегом BR — double enter создаст новый абзац; для оформления списков есть разметка; не лишним будет взглянуть на [[Wiki FAQ]])';
     $pattern = '/(<br.*>)/i';
     $text = preg_replace($pattern, $msg, $text);
 
