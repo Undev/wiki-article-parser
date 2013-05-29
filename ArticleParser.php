@@ -10,7 +10,7 @@ $wgExtensionCredits['other'][] = array(
     'path' => __FILE__,
     'name' => 'ArticleParser',
     'author' => '[http://www.facebook.com/denisovdenis Denisov Denis]',
-    'url' => 'https://github.com/Undev/wiki-last-modified-author',
+    'url' => 'https://github.com/Undev/wiki-article-parser',
     'description' => 'Parse article for br tag',
     'version' => 0.1,
 );
