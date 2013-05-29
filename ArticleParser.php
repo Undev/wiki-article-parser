@@ -15,17 +15,13 @@ $wgExtensionCredits['other'][] = array(
     'version' => 0.1,
 );
 
-$wgHooks['SkinTemplateOutputPageBeforeExec'][] = 'lfTOSLink';
+$wgHooks['ArticleSave'][] = 'brRemove';
 
-function lfTOSLink($sk, &$tpl)
+function brRemove(&$article, &$user, $text)
 {
-    if (empty($tpl->data['lastmod']))
-        return false;
-
-    global $wgArticle;
-
-    $user = Linker::userLink($wgArticle->getUser(), $wgArticle->getUserText());
-    $tpl->set('lastmod', $tpl->data['lastmod'] . "; <b>автор изменения</b> — $user.");
+    $msg = '(пожалуйста, не пользуйтесь тегом BR — double enter создаст новый абзац; для оформления списков есть разметка; не лишним будет взглянуть на [[Wiki FAQ]])';
+    $pattern = '/(<br.*>)/i';
+    $text = preg_replace($pattern, $msg, $text);
 
     return true;
 }
