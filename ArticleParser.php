@@ -15,13 +15,18 @@ $wgExtensionCredits['other'][] = array(
     'version' => 0.1,
 );
 
-$wgHooks['ArticleSave'][] = 'brRemove';
+$wgHooks['OutputPageBeforeHTML'][] = 'ArticleParser::onOutputPageBeforeHTML';
 
-function brRemove(&$article, &$user, &$text, &$summary, $minor, $watchthis, $sectionanchor, &$flags, &$status)
+class ArticleParser
 {
-    $msg = '<br>(пожалуйста, не пользуйтесь тегом BR — double enter создаст новый абзац; для оформления списков есть разметка; не лишним будет взглянуть на [[Wiki FAQ]])';
-    $pattern = '/(<br.*>)/i';
-    $text = preg_replace($pattern, $msg, $text);
+    public static function onOutputPageBeforeHTML(OutputPage &$out, &$text)
+    {
+        $msg = "{{tab red|Пожалуйста, не пользуйтесь тегом BR — double enter создаст новый абзац; для оформления списков есть разметка; не лишним будет взглянуть на [[Wiki FAQ]]}}";
+        $msg = $out->parse($msg);
 
-    return true;
+        $pattern = '/(<br.*>)/i';
+        $text = preg_replace($pattern, $msg, $text);
+
+        return true;
+    }
 }
