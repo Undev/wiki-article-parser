@@ -6,27 +6,45 @@
  * Time: 17:25
  */
 
+$wgExtensionFunctions[] = 'wfSetupArticleParser';
 $wgExtensionCredits['other'][] = array(
     'path' => __FILE__,
     'name' => 'ArticleParser',
     'author' => '[http://www.facebook.com/denisovdenis Denisov Denis]',
     'url' => 'https://github.com/Undev/wiki-article-parser',
     'description' => 'Parse article for br tag',
-    'version' => 0.1,
+    'version' => 0.2,
 );
-
-$wgHooks['OutputPageBeforeHTML'][] = 'ArticleParser::onOutputPageBeforeHTML';
 
 class ArticleParser
 {
-    public static function onOutputPageBeforeHTML(OutputPage &$out, &$text)
+    function __construct()
     {
-        $msg = "{{tab red|Пожалуйста, не пользуйтесь тегом BR — double enter создаст новый абзац; для оформления списков есть разметка; не лишним будет взглянуть на [[Wiki FAQ]]}}";
-        $msg = $out->parse($msg);
+        global $wgHooks;
 
-        $pattern = '/(<br.*>)/i';
-        $text = preg_replace($pattern, $msg, $text);
+        $wgHooks['ArticleViewHeader'][] = $this;
+    }
+
+    public function onArticleViewHeader(&$article, &$outputDone, &$pcache)
+    {
+        $text = $article->getContent();
+
+        $pattern = "/<br.*>/i";
+        $replace = "\n{{tab red|Пожалуйста, не пользуйтесь тегом BR — double enter создаст новый абзац; для оформления списков есть разметка; не лишним будет взглянуть на [[Wiki FAQ]]}}\n";
+        $text = preg_replace($pattern, $replace, $text);
+
+        $outputPage = new OutputPage;
+        $outputPage->addWikiText($text);
+
+        RequestContext::getMain()->setOutput($outputPage);
 
         return true;
     }
+}
+
+function wfSetupArticleParser()
+{
+    global $wgArticleParser;
+
+    $wgArticleParser = new ArticleParser;
 }
