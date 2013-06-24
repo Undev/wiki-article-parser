@@ -13,16 +13,21 @@ $wgExtensionCredits['other'][] = array(
     'author' => '[http://www.facebook.com/denisovdenis Denisov Denis]',
     'url' => 'https://github.com/Undev/wiki-article-parser',
     'description' => 'Parse article for br tag',
-    'version' => 0.2,
+    'version' => 0.3,
 );
 
 class ArticleParser
 {
+
+    private $text;
+
     function __construct()
     {
         global $wgHooks;
 
         $wgHooks['ArticleViewHeader'][] = $this;
+        $wgHooks['OutputPageParserOutput'][] = $this;
+
     }
 
     public function onArticleViewHeader(&$article, &$outputDone, &$pcache)
@@ -31,15 +36,21 @@ class ArticleParser
 
         $pattern = "/<br.*>/i";
         $replace = "\n{{tab red|Пожалуйста, не пользуйтесь тегом BR — double enter создаст новый абзац; для оформления списков есть разметка; не лишним будет взглянуть на [[Wiki FAQ]]}}\n";
-        $text = preg_replace($pattern, $replace, $text);
 
-        $outputPage = new OutputPage;
-        $outputPage->addWikiText($text);
-
-        RequestContext::getMain()->setOutput($outputPage);
+        $outputPage = RequestContext::getMain()->getOutput();
+        $this->text = preg_replace($pattern, $replace, $text);
+        $this->text = $outputPage->parse($this->text);
 
         return true;
     }
+
+    public function onOutputPageParserOutput( OutputPage &$out, ParserOutput $parseroutput )
+    {
+        $parseroutput->setText($this->text);
+
+        return true;
+    }
+
 }
 
 function wfSetupArticleParser()
